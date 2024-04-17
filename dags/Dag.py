@@ -5,8 +5,11 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunSparkBatchOperator
 
 # Defining functions to be used
-def _process_user(ti):
-    user = ti.xcom_pull(task_ids = "extract_user")
+def _choose_random_customer_id(ti):
+    ti.xcom_push(key = 'my_key', value = 42) # Adjust
+
+def _tst(ti):
+    user = ti.xcom_pull(key = 'my_key', task_ids = 'choose_random_customer_id')
     user = user['results'][0]
     processed_user = json_normalize({
         'firstname': user['name']['first'],
@@ -49,14 +52,12 @@ with DAG(
      ) as dag: ## Adjust
 
     # Creating tasks/operators
-    extract_user = SimpleHttpOperator(task_id = "extract_user",
-                                      http_conn_id = "user_api",
-                                      endpoint = "api/",
-                                      method = "GET",
-                                      response_filter = lambda response: json.loads(response.text),
-                                      log_response = True) ## Adjust
+    choose_random_customer_id = PythonOperator(
+        task_id = 'choose_random_customer_id',
+        python_callable = _choose_random_customer_id
+    )
     
-    process_user = PythonOperator(task_id = 'process_user', python_callable = _process_user) ## Adjust
+    tst = PythonOperator(task_id = 'tst', python_callable = _tst) ## Adjust
 
     run_spark_job = AzureSynapseRunSparkBatchOperator(
                         task_id = "run_spark_job", 
