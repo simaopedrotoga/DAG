@@ -18,7 +18,7 @@ def _write_feature_random_value_to_local_storage_file(ti):
     
 # Defining variables to be used
 local_storage_folder_name = "/tmp/"
-remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/Spark%20job%20definition%201/"
+remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/sparkjobdefinition1/"
 local_remote_storage_file_name = "FeatureValue.txt"
 local_storage_file_path = os.environ.get(local_storage_folder_name, local_remote_storage_file_name)
 remote_storage_file_path = os.environ.get(remote_storage_folder_name, local_remote_storage_file_name)
@@ -78,3 +78,5 @@ with DAG(
 
     # Defining the flow
     choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> transfer_local_storage_file_to_azure_blob_storage >> run_azure_synapse_spark_job_with_model_prediction ## Adjust
+
+

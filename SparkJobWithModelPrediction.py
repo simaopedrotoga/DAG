@@ -5,7 +5,10 @@ from sklearn.datasets import fetch_california_housing
 from sklearn import linear_model
 
 # Import feature value
-feature_value = 0
+remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/sparkjobdefinition1/"
+local_remote_storage_file_name = "FeatureValue.txt"
+remote_storage_file_path = remote_storage_folder_name + local_remote_storage_file_name
+feature_value = int(pd.read_csv(remote_storage_file_path).columns[0])
 
 # Machine Learning
 housing = fetch_california_housing()
