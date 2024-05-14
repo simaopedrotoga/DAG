@@ -57,6 +57,24 @@ with DAG(
         task_id = 'choose_feature_random_value',
         python_callable = _choose_feature_random_value
     ) ## Adjust
+    
+    write_feature_random_value_to_local_storage_file = PythonOperator(
+        task_id = 'write_feature_random_value_to_local_storage_file', 
+        python_callable = _write_feature_random_value_to_local_storage_file
+    ) ## Adjust
+
+    transfer_local_storage_file_to_azure_blob_storage = LocalFilesystemToADLSOperator(
+        task_id = "transfer_local_storage_file_to_azure_blob_storage",
+        local_path = local_storage_file_path,
+        remote_path = remote_storage_file_path,
+        overwrite = True
+    ) ## Adjust
+
+    run_azure_synapse_spark_job_with_model_prediction = AzureSynapseRunSparkBatchOperator(
+                        task_id = "run_azure_synapse_spark_job_with_model_prediction", 
+                        spark_pool = "sparknamedag", 
+                        payload = spark_job  ## Adjust
+    ) ## Adjust
 
     # Defining the flow
-    choose_feature_random_value
+    choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> transfer_local_storage_file_to_azure_blob_storage >> run_azure_synapse_spark_job_with_model_prediction ## Adjust
