@@ -1,5 +1,6 @@
 # Importing packages
 import os
+import numpy as np
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -8,7 +9,7 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    ti.xcom_push(key = "my_key", value = "42") # Adjust
+    ti.xcom_push(key = "my_key", value = np.random.randint(100))
 
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "_choose_feature_random_value") 
@@ -46,7 +47,7 @@ spark_job = {
 
 # Creating scheduled DAGs
 with DAG(
-         dag_id = "user_processing", 
+         dag_id = "dag", 
          start_date = datetime(2022, 1, 1), 
          schedule = "@daily", 
          catchup = False

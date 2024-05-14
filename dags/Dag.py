@@ -10,6 +10,12 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 # Defining functions to be used
 def _choose_feature_random_value(ti):
     ti.xcom_push(key = "my_key", value = np.random.randint(100))
+
+def _write_feature_random_value_to_local_storage_file(ti):
+    feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "_choose_feature_random_value") 
+    file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name, 'w')
+    file.write(feature_random_value)
+    file.close() ## Adjust
     
 # Defining variables to be used
 local_storage_folder_name = "/tmp/"
@@ -45,12 +51,17 @@ with DAG(
          start_date = datetime(2024, 5, 10), 
          schedule = '*/1 * * * *',
          catchup = False
-     ) as dag: ## Adjust
+     ) as dag:
 
     # Creating tasks/operators
     choose_feature_random_value = PythonOperator(
         task_id = 'choose_feature_random_value',
         python_callable = _choose_feature_random_value
+    )
+
+    write_feature_random_value_to_local_storage_file = PythonOperator(
+        task_id = 'write_feature_random_value_to_local_storage_file', 
+        python_callable = _write_feature_random_value_to_local_storage_file
     ) ## Adjust
 
     # Defining the flow
