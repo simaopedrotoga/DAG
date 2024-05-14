@@ -1,5 +1,6 @@
 # Importing packages
 import os
+import numpy as np
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -8,7 +9,7 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    ti.xcom_push(key = "my_key", value = int(np.random.randint(1, 100)))
+    ti.xcom_push(key = "my_key", value = np.random.randint(1, 100))
     
 # Defining variables to be used
 local_storage_folder_name = "/tmp/"
