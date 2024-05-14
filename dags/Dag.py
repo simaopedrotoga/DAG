@@ -41,7 +41,7 @@ spark_job = {
 # Creating scheduled DAGs
 with DAG(
          dag_id = "dag", 
-         start_date = datetime(2024, 5, 12), 
+         start_date = datetime(2024, 5, 10), 
          schedule = "@daily", 
          catchup = True
      ) as dag: ## Adjust
