@@ -40,10 +40,10 @@ spark_job = {
 
 # Creating scheduled DAGs
 with DAG(
-         dag_id = "user_processing", 
-         start_date = datetime(2022, 1, 1), 
+         dag_id = "dag", 
+         start_date = datetime(2024, 5, 12), 
          schedule = "@daily", 
-         catchup = False
+         catchup = True
      ) as dag: ## Adjust
 
     # Creating tasks/operators
