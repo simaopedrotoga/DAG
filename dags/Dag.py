@@ -42,7 +42,7 @@ spark_job = {
 with DAG(
          dag_id = "dag", 
          start_date = datetime(2024, 5, 10), 
-         schedule = '*/5 * * * *',
+         schedule = '*/1 * * * *',
          catchup = False
      ) as dag: ## Adjust
 
