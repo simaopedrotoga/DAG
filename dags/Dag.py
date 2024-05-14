@@ -65,4 +65,4 @@ with DAG(
     ) ## Adjust
 
     # Defining the flow
-    choose_feature_random_value
+    choose_feature_random_value >> write_feature_random_value_to_local_storage_file
