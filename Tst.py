@@ -9,7 +9,8 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    ti.xcom_push(key = "my_key", value = np.random.randint(30, 100))
+    my_key = str(np.random.randint(0, 1000000000))
+    ti.xcom_push(key = my_key, value = np.random.randint(30, 100))
 
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value") 
