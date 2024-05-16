@@ -7,6 +7,13 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.microsoft.azure.transfers.local_to_adls import LocalFilesystemToADLSOperator
 from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunSparkBatchOperator
 
+from airflow.utils.db import provide_session
+from airflow.models import XCom
+
+@provide_session
+def cleanup_xcom(session=None):
+    session.query(XCom).filter(XCom.dag_id == "dag").delete()
+
 # Defining functions to be used
 def _choose_feature_random_value(ti):
     ti.xcom_push(key = my_key, value = np.random.randint(30, 100))
