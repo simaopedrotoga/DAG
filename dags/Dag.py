@@ -19,7 +19,9 @@ def _write_feature_random_value_to_local_storage_file(ti):
     arquivo = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "r")
     conteudo = arquivo.read()
     arquivo.close()
+    print("::group::Non important details")
     print(conteudo)
+    print("::endgroup::")
     
 # Defining variables to be used
 local_storage_folder_name = "/tmp/"
