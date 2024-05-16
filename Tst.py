@@ -14,7 +14,7 @@ def _choose_feature_random_value(ti):
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value") 
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), 'w')
-    file.write(int(feature_random_value))
+    file.write(str(feature_random_value))
     file.close() ## Adjust
     
 # Defining variables to be used
