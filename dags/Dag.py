@@ -12,13 +12,19 @@ def _choose_feature_random_value(ti):
     ti.xcom_push(key = "my_key", value = np.random.randint(100))
 
 def _write_feature_random_value_to_local_storage_file(ti):
-    feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value") 
+    feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value")
+
+    print("::group::Non important details")
+    print(str(feature_random_value))
+    print("::endgroup::")
+
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "w")
     file.write(str(feature_random_value))
     file.close() ## Adjust
     arquivo = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "r")
     conteudo = arquivo.read()
     arquivo.close()
+
     print("::group::Non important details")
     print(conteudo)
     print("::endgroup::")
