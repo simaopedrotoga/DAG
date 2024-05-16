@@ -9,16 +9,16 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    my_key = str(np.random.randint(0, 1000000000))
     ti.xcom_push(key = my_key, value = np.random.randint(30, 100))
 
 def _write_feature_random_value_to_local_storage_file(ti):
-    feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value") 
+    feature_random_value = ti.xcom_pull(key = my_key, task_ids = "choose_feature_random_value") 
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "w")
     file.write(str(feature_random_value))
     file.close() ## Adjust
     
 # Defining variables to be used
+my_key = str(np.random.randint(0, 1000000000))
 local_storage_folder_name = "/tmp/"
 remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/sparkjobdefinition1/"
 local_remote_storage_file_name = "FeatureValue.txt"
