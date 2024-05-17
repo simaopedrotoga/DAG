@@ -9,6 +9,11 @@ from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunS
 from airflow.models import XCom
 from airflow.utils.db import provide_session
 
+### https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme?view=azure-python#defaultazurecredential
+### https://github.com/Azure/azure-sdk-for-python/tree/azure-identity_1.16.0/sdk/storage/azure-storage-file-datalake
+from azure.storage.filedatalake import DataLakeServiceClient
+service = DataLakeServiceClient(account_url = "https://storageaccountnamedag.dfs.core.windows.net/", credential = "<account_access_key>")
+
 # Defining functions to be used
 def _choose_feature_random_value(ti):
     ti.xcom_push(key = "my_key", value = 60) ## Choose a value
