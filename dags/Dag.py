@@ -82,12 +82,5 @@ with DAG(
         python_callable = _write_feature_random_value_to_local_storage_file
     ) ## Adjust
 
-    delete_xcom_task = PostgresOperator(
-      task_id = 'delete_xcom_task',
-      postgres_conn_id = 'airflow_db',
-      sql = "delete from xcom where dag_id = dag.dag_id and task_id = 'your_task_id' and execution_date={{ ds }}",
-      dag = dag
-    )
-
     # Defining the flow
     choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> delete_xcom
