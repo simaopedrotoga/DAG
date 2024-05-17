@@ -18,7 +18,7 @@ def _write_feature_random_value_to_local_storage_file(ti):
     file.close() ## Adjust
     
 # Defining variables to be used
-my_key = str(3) # str(np.random.randint(0, 1000000000))
+my_key = str(1) # str(np.random.randint(0, 1000000000))
 local_storage_folder_name = "/tmp/"
 remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/sparkjobdefinition1/"
 local_remote_storage_file_name = "FeatureValue.txt"
