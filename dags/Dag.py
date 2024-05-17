@@ -15,21 +15,9 @@ def _choose_feature_random_value(ti):
 
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value")
-
-    print("::group::Non important details")
-    print(str(feature_random_value))
-    print("::endgroup::")
-
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "w")
     file.write(str(feature_random_value))
-    file.close() ## Adjust
-    arquivo = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "r")
-    conteudo = arquivo.read()
-    arquivo.close()
-
-    print("::group::Non important details")
-    print(conteudo)
-    print("::endgroup::")
+    file.close()
     
 # Defining variables to be used
 local_storage_folder_name = "/tmp/"
@@ -91,5 +79,12 @@ with DAG(
         python_callable = _write_feature_random_value_to_local_storage_file
     )
 
+    transfer_local_storage_file_to_azure_blob_storage = LocalFilesystemToADLSOperator(
+        task_id = "transfer_local_storage_file_to_azure_blob_storage",
+        local_path = local_storage_file_path,
+        remote_path = remote_storage_file_path,
+        overwrite = True
+    ) ## Adjust
+
     # Defining the flow
-    delete_xcom >> choose_feature_random_value >> write_feature_random_value_to_local_storage_file
+    delete_xcom >> choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> transfer_local_storage_file_to_azure_blob_storage

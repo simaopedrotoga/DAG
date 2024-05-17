@@ -6,19 +6,20 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.microsoft.azure.transfers.local_to_adls import LocalFilesystemToADLSOperator
 from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunSparkBatchOperator
+from airflow.models import XCom
+from airflow.utils.db import provide_session
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    ti.xcom_push(key = my_key, value = np.random.randint(30, 100))
+    ti.xcom_push(key = "my_key", value = 60) ## Choose a value
 
 def _write_feature_random_value_to_local_storage_file(ti):
-    feature_random_value = ti.xcom_pull(key = my_key, task_ids = "choose_feature_random_value") 
+    feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value") 
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "w")
     file.write(str(feature_random_value))
-    file.close() ## Adjust
+    file.close()
     
 # Defining variables to be used
-my_key = str(np.random.randint(0, 1000000000))
 local_storage_folder_name = "/tmp/"
 remote_storage_folder_name = "abfss://dag@storageaccountnamedag.dfs.core.windows.net/synapse/workspaces/workspacenamedag/batchjobs/sparkjobdefinition1/"
 local_remote_storage_file_name = "FeatureValue.txt"
@@ -54,16 +55,29 @@ with DAG(
          catchup = False
      ) as dag: ## Adjust
 
+    ## Special
+    @provide_session
+    def clean_xcom(session = None, **context):
+        dag = context["dag"]
+        dag_id = dag._dag_id 
+        session.query(XCom).filter(XCom.dag_id == dag_id).delete()
+
     # Creating tasks/operators
+    delete_xcom = PythonOperator(
+        task_id = "delete_xcom",
+        python_callable = clean_xcom, 
+        dag = dag
+    )
+
     choose_feature_random_value = PythonOperator(
         task_id = 'choose_feature_random_value',
         python_callable = _choose_feature_random_value
-    ) ## Adjust
+    )
     
     write_feature_random_value_to_local_storage_file = PythonOperator(
         task_id = 'write_feature_random_value_to_local_storage_file', 
         python_callable = _write_feature_random_value_to_local_storage_file
-    ) ## Adjust
+    )
 
     transfer_local_storage_file_to_azure_blob_storage = LocalFilesystemToADLSOperator(
         task_id = "transfer_local_storage_file_to_azure_blob_storage",
@@ -79,4 +93,4 @@ with DAG(
     ) ## Adjust
 
     # Defining the flow
-    choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> transfer_local_storage_file_to_azure_blob_storage >> run_azure_synapse_spark_job_with_model_prediction ## Adjust
+    delete_xcom >> choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> transfer_local_storage_file_to_azure_blob_storage >> run_azure_synapse_spark_job_with_model_prediction ## Adjust
