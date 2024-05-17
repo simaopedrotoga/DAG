@@ -16,9 +16,21 @@ def _choose_feature_random_value(ti):
 
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = my_key, task_ids = "choose_feature_random_value")
+
+    print("::group::Non important details")
+    print(str(feature_random_value))
+    print("::endgroup::")
+
     file = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "w")
     file.write(str(feature_random_value))
     file.close() ## Adjust
+    arquivo = open(os.path.join(local_storage_folder_name + local_remote_storage_file_name), "r")
+    conteudo = arquivo.read()
+    arquivo.close()
+
+    print("::group::Non important details")
+    print(conteudo)
+    print("::endgroup::")
     
 # Defining variables to be used
 my_key = str(np.random.randint(0, 1000000000))
@@ -53,7 +65,7 @@ spark_job = {
 with DAG(
          dag_id = "dag", 
          start_date = datetime(2024, 5, 10), 
-         schedule = '*/2 * * * *',
+         schedule = '*/1 * * * *',
          catchup = False
      ) as dag:
 
@@ -69,7 +81,7 @@ with DAG(
         python_callable = clean_xcom, 
         dag = dag
     )
-
+    
 
     # Creating tasks/operators
     choose_feature_random_value = PythonOperator(
