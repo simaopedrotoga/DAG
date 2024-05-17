@@ -95,4 +95,4 @@ with DAG(
     ) ## Adjust
 
     # Defining the flow
-    choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> delete_xcom
+    delete_xcom >> choose_feature_random_value >> write_feature_random_value_to_local_storage_file
