@@ -11,7 +11,7 @@ from airflow.utils.db import provide_session
 
 # Defining functions to be used
 def _choose_feature_random_value(ti):
-    ti.xcom_push(key = "my_key", value = 30) ## Choose a value
+    ti.xcom_push(key = "my_key", value = 60) ## Choose a value
 
 def _write_feature_random_value_to_local_storage_file(ti):
     feature_random_value = ti.xcom_pull(key = "my_key", task_ids = "choose_feature_random_value")
