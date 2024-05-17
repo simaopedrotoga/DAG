@@ -7,6 +7,9 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.microsoft.azure.transfers.local_to_adls import LocalFilesystemToADLSOperator
 from airflow.providers.microsoft.azure.operators.synapse import AzureSynapseRunSparkBatchOperator
 
+from airflow.models import XCom
+from airflow.utils.db import provide_session
+
 # Defining functions to be used
 def _choose_feature_random_value(ti):
     ti.xcom_push(key = my_key, value = np.random.randint(30, 100))
@@ -54,6 +57,20 @@ with DAG(
          catchup = False
      ) as dag:
 
+
+    @provide_session
+    def clean_xcom(session = None, **context):
+        dag = context["dag"]
+        dag_id = dag._dag_id 
+        session.query(XCom).filter(XCom.dag_id == dag_id).delete()
+
+    delete_xcom = PythonOperator(
+        task_id = "delete_xcom",
+        python_callable = clean_xcom, 
+        dag = dag
+    )
+
+
     # Creating tasks/operators
     choose_feature_random_value = PythonOperator(
         task_id = 'choose_feature_random_value',
@@ -65,5 +82,12 @@ with DAG(
         python_callable = _write_feature_random_value_to_local_storage_file
     ) ## Adjust
 
+    delete_xcom_task = PostgresOperator(
+      task_id = 'delete_xcom_task',
+      postgres_conn_id = 'airflow_db',
+      sql = "delete from xcom where dag_id = dag.dag_id and task_id = 'your_task_id' and execution_date={{ ds }}",
+      dag = dag
+    )
+
     # Defining the flow
-    choose_feature_random_value >> write_feature_random_value_to_local_storage_file
+    choose_feature_random_value >> write_feature_random_value_to_local_storage_file >> delete_xcom
